@@ -610,7 +610,7 @@ sudo cat /var/log/nginx/access.log  # Access logs
 sudo cat /var/log/nginx/error.log   # Error logs
 ```
 
-### Re-deploy Frontend  app (after code changes)
+### Re-deploy Frontend (after code changes)
 ```bash
 # From local machine:
 rsync -avz --exclude='node_modules' --exclude='.git' \
