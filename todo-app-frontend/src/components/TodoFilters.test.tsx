@@ -53,7 +53,7 @@ describe("TodoFilters — rendering", () => {
   });
 
   it("does not crash when counts object is empty", () => {
-    expect(() => renderFilters("all", vi.fn(), {})).not.toThrow();
+    expect(() => renderFilters("all", vi.fn(), {} as typeof defaultCounts)).not.toThrow();
   });
 });
 
