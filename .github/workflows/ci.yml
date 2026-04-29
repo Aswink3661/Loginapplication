@@ -129,6 +129,22 @@ jobs:
           category: "/language:${{ matrix.language }}"
           upload: true
 
+  # ─── PR Source Branch Check ──────────────────────────────────────────────────
+
+  check-pr-source-branch:
+    name: Check PR Source Branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    steps:
+      - name: Verify PR is from develop
+        run: |
+          if [[ "${{ github.head_ref }}" != "develop" ]]; then
+            echo "PRs to 'main' are only allowed from the 'develop' branch."
+            echo "Current source branch: ${{ github.head_ref }}"
+            exit 1
+          fi
+          echo "Source branch is 'develop'. Merge to 'main' is permitted."
+
   # ─── Merge Gate ──────────────────────────────────────────────────────────────
 
   all-checks-passed:

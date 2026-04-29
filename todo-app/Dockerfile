@@ -21,6 +21,9 @@ COPY --from=builder /install /usr/local
 # Copy application source
 COPY --chown=appuser:appgroup . .
 
+# Pre-create logs directory so appuser can write to it at runtime
+RUN mkdir -p /app/logs && chown appuser:appgroup /app/logs
+
 USER appuser
 
 EXPOSE 8000
