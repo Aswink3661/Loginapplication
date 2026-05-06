@@ -32,10 +32,16 @@ resource "aws_subnet" "public" {
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "${var.project_name}-${var.environment}-public-${count.index + 1}"
-    Tier = "Public"
-  }
+  tags = merge(
+    {
+      Name = "${var.project_name}-${var.environment}-public-${count.index + 1}"
+      Tier = "Public"
+    },
+    var.eks_cluster_name != "" ? {
+      "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
+      "kubernetes.io/role/elb"                        = "1"
+    } : {}
+  )
 }
 
 # ------------------------------------------------------------------
@@ -47,10 +53,16 @@ resource "aws_subnet" "private" {
   cidr_block        = var.private_subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index]
 
-  tags = {
-    Name = "${var.project_name}-${var.environment}-private-${count.index + 1}"
-    Tier = "Private"
-  }
+  tags = merge(
+    {
+      Name = "${var.project_name}-${var.environment}-private-${count.index + 1}"
+      Tier = "Private"
+    },
+    var.eks_cluster_name != "" ? {
+      "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
+      "kubernetes.io/role/internal-elb"               = "1"
+    } : {}
+  )
 }
 
 # ------------------------------------------------------------------
