@@ -9,9 +9,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "loginapp-terraform-state"
+    bucket         = "loginapp-terraform-state-aps1"
     key            = "qa/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "ap-south-1"
     encrypt        = true
     dynamodb_table = "loginapp-terraform-lock"
   }

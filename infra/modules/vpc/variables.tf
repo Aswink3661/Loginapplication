@@ -27,3 +27,9 @@ variable "availability_zones" {
   description = "List of availability zones to deploy subnets into"
   type        = list(string)
 }
+
+variable "eks_cluster_name" {
+  description = "EKS cluster name used to add required Kubernetes subnet discovery tags. Leave empty for non-EKS VPCs."
+  type        = string
+  default     = ""
+}

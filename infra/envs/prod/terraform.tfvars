@@ -2,7 +2,7 @@
 # PROD environment – variable values
 # ---------------------------------------------------------------
 
-aws_region   = "us-east-1"
+aws_region   = "ap-south-1"
 project_name = "loginapp"
 environment  = "prod"
 
@@ -10,10 +10,10 @@ environment  = "prod"
 vpc_cidr             = "10.2.0.0/16"
 public_subnet_cidrs  = ["10.2.1.0/24", "10.2.2.0/24"]
 private_subnet_cidrs = ["10.2.11.0/24", "10.2.12.0/24"]
-availability_zones   = ["us-east-1a", "us-east-1b"]
+availability_zones   = ["ap-south-1a", "ap-south-1b"]
 
 # EC2
-ami_id          = "ami-0c02fb55956c7d316" # Amazon Linux 2023 – us-east-1
+ami_id          = "ami-0e12ffc2dd465f6e4" # Amazon Linux 2023 – ap-south-1
 instance_type   = "t3.medium"
 key_pair_name   = ""
 ebs_volume_size = 30

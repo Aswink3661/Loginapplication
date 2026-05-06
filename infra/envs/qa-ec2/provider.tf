@@ -9,9 +9,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "loginapp-terraform-stateless"
+    bucket  = "loginapp-terraform-state-aps1"
     key     = "qa-ec2/terraform.tfstate"
-    region  = "us-east-1"
+    region  = "ap-south-1"
     encrypt = true
   }
 }
