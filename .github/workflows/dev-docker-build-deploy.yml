@@ -1,4 +1,4 @@
-name: Dev-docker-build-deploy
+name: Dev — Build, Tag & Deploy
 
 on:
   push:
@@ -10,6 +10,8 @@ env:
   REGISTRY: ghcr.io
   BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/todo-app-backend
   FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/todo-app-frontend
+  EKS_CLUSTER_NAME: loginapp-dev-eks
+  AWS_REGION: ap-south-1
 
 jobs:
   # ─── Build & Push Backend ────────────────────────────────────────────────────
@@ -20,6 +22,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_tag: ${{ steps.meta-backend.outputs.version }}
 
     steps:
       - name: Checkout code
@@ -38,9 +42,7 @@ jobs:
         with:
           images: ${{ env.BACKEND_IMAGE }}
           tags: |
-            type=ref,event=branch
-            type=sha,format=short
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha,format=short,prefix=sha-
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -64,6 +66,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_tag: ${{ steps.meta-frontend.outputs.version }}
 
     steps:
       - name: Checkout code
@@ -82,9 +86,7 @@ jobs:
         with:
           images: ${{ env.FRONTEND_IMAGE }}
           tags: |
-            type=ref,event=branch
-            type=sha,format=short
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha,format=short,prefix=sha-
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -99,3 +101,79 @@ jobs:
           labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # ─── Deploy to Dev ────────────────────────────────────────────────────────────
+
+  deploy-dev:
+    name: Deploy to Dev (Helm)
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    permissions:
+      contents: write   # to commit updated values.yaml back to repo
+      packages: read
+    environment: dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ env.EKS_CLUSTER_NAME }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.16.0"
+
+      - name: Update backend image tag in values.yaml
+        run: |
+          yq e '.image.tag = "${{ needs.build-backend.outputs.image_tag }}"' \
+            -i helm/todo-backend/values.yaml
+
+      - name: Update frontend image tag in values.yaml
+        run: |
+          yq e '.image.tag = "${{ needs.build-frontend.outputs.image_tag }}"' \
+            -i helm/todo-frontend/values.yaml
+
+      - name: Commit updated image tags
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add helm/todo-backend/values.yaml helm/todo-frontend/values.yaml
+          git diff --staged --quiet || \
+            git commit -m "chore(deploy): update image tags to sha-$(echo '${{ github.sha }}' | cut -c1-7) [skip ci]"
+          git push
+
+      - name: Deploy backend with Helm
+        run: |
+          helm upgrade --install todo-backend ./helm/todo-backend \
+            --namespace loginapp-dev \
+            --create-namespace \
+            --values helm/todo-backend/values.yaml \
+            --values helm/todo-backend/values-dev.yaml \
+            --set image.tag="${{ needs.build-backend.outputs.image_tag }}" \
+            --atomic \
+            --timeout 5m
+
+      - name: Deploy frontend with Helm
+        run: |
+          helm upgrade --install todo-frontend ./helm/todo-frontend \
+            --namespace loginapp-dev \
+            --create-namespace \
+            --values helm/todo-frontend/values.yaml \
+            --values helm/todo-frontend/values-dev.yaml \
+            --set image.tag="${{ needs.build-frontend.outputs.image_tag }}" \
+            --atomic \
+            --timeout 5m

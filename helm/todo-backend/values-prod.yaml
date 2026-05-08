@@ -1,0 +1,30 @@
+# Environment overrides for prod
+namespace:
+  create: false
+  name: loginapp-prod
+  labels:
+    project: loginapp
+    environment: prod
+
+image:
+  tag: "stable"
+
+replicaCount: 3
+
+env:
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  LOG_LEVEL: "INFO"
+  WORKERS: "2"
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+labels:
+  project: loginapp
+  environment: prod
