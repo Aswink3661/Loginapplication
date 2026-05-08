@@ -2,9 +2,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: frontend-nginx-config
-  namespace: loginapp-dev
+  namespace: {{ include "todo-frontend.namespace" . }}
   labels:
-    app: todo-app-frontend
+    {{- include "todo-frontend.labels" . | nindent 4 }}
 data:
   default.conf: |
     server {
@@ -19,7 +19,7 @@ data:
 
       # Proxy API requests to the backend service
       location /api/ {
-        proxy_pass         http://todo-app-backend:8000/api/;
+        proxy_pass         http://{{ .Values.nginx.backendServiceName }}:{{ .Values.nginx.backendPort }}/api/;
         proxy_http_version 1.1;
         proxy_set_header   Host              $host;
         proxy_set_header   X-Real-IP         $remote_addr;
@@ -29,7 +29,7 @@ data:
 
       # Proxy health endpoint to the backend service
       location /health {
-        proxy_pass         http://todo-app-backend:8000/health;
+        proxy_pass         http://{{ .Values.nginx.backendServiceName }}:{{ .Values.nginx.backendPort }}/health;
         proxy_http_version 1.1;
         proxy_set_header   Host              $host;
         proxy_set_header   X-Real-IP         $remote_addr;

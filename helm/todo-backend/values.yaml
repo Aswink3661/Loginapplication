@@ -1,0 +1,87 @@
+# Default values for todo-backend.
+# Override per environment with values-<env>.yaml or --set flags.
+
+# ── Namespace ─────────────────────────────────────────────────────────────────
+namespace:
+  create: false          # frontend chart already creates loginapp-dev
+  name: loginapp-dev
+  labels:
+    project: loginapp
+    environment: dev
+
+# ── Image ─────────────────────────────────────────────────────────────────────
+image:
+  repository: ghcr.io/aswink3661/todo-app-backend
+  tag: ""          # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
+  pullPolicy: Always
+
+# ── Replica count ─────────────────────────────────────────────────────────────
+replicaCount: 2
+
+# ── Service ───────────────────────────────────────────────────────────────────
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+# The backend is reached via the frontend nginx proxy (/api/, /health).
+# Enable this only if you need direct external access to the API.
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":8000}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/success-codes: "200"
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+
+# ── Application environment variables ─────────────────────────────────────────
+env:
+  ENVIRONMENT: "development"
+  DEBUG: "false"
+  LOG_LEVEL: "INFO"
+  LOG_TO_FILE: "false"
+  HOST: "0.0.0.0"
+  PORT: "8000"
+  WORKERS: "1"
+  APP_NAME: "Todo API"
+  APP_VERSION: "1.0.0"
+
+# ── Resources ─────────────────────────────────────────────────────────────────
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
+
+# ── Probes ────────────────────────────────────────────────────────────────────
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 15
+  periodSeconds: 20
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+# ── Labels ────────────────────────────────────────────────────────────────────
+labels:
+  project: loginapp
+  environment: dev

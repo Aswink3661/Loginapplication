@@ -1,0 +1,20 @@
+# Environment overrides for dev
+namespace:
+  create: false
+  name: loginapp-dev
+  labels:
+    project: loginapp
+    environment: dev
+
+# image.tag is set dynamically by CI/CD; do not override here
+
+replicaCount: 2
+
+env:
+  ENVIRONMENT: "development"
+  DEBUG: "true"
+  LOG_LEVEL: "DEBUG"
+
+labels:
+  project: loginapp
+  environment: dev

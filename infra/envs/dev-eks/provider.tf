@@ -9,10 +9,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "loginapp-terraform-state-aps1"
-    key            = "dev-eks/terraform.tfstate"
-    region         = "ap-south-1"
-    encrypt        = true
+    bucket  = "loginapp-terraform-state-aps1"
+    key     = "dev-eks/terraform.tfstate"
+    region  = "ap-south-1"
+    encrypt = true
   }
 }
 
