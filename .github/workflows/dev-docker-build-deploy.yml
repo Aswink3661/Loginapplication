@@ -126,6 +126,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Verify EKS cluster exists
+        run: |
+          set -euo pipefail
+
+          echo "AWS account: $(aws sts get-caller-identity --query Account --output text)"
+          echo "AWS region: ${AWS_REGION}"
+          echo "Expected EKS cluster: ${EKS_CLUSTER_NAME}"
+
+          if ! aws eks describe-cluster \
+            --region "${AWS_REGION}" \
+            --name "${EKS_CLUSTER_NAME}" >/dev/null 2>&1; then
+            echo "::error title=EKS cluster not found::Cluster '${EKS_CLUSTER_NAME}' was not found in region '${AWS_REGION}' for the configured AWS credentials. Apply infra/envs/dev-eks first, or update EKS_CLUSTER_NAME, AWS_REGION, or the GitHub AWS secrets."
+            echo "Clusters visible in ${AWS_REGION}:"
+            aws eks list-clusters --region "${AWS_REGION}" --query 'clusters' --output table || true
+            exit 1
+          fi
+
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig \
