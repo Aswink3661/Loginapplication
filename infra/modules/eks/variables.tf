@@ -56,3 +56,15 @@ variable "node_disk_size" {
   type        = number
   default     = 20
 }
+
+variable "node_subnet_ids" {
+  description = "Subnet IDs where worker nodes are placed. Defaults to private subnets; pass public subnet IDs to assign public IPs to nodes (dev only)."
+  type        = list(string)
+  default     = []
+}
+
+variable "node_ssh_key_name" {
+  description = "Name of the EC2 key pair to allow SSH access to worker nodes. Leave empty to disable SSH."
+  type        = string
+  default     = ""
+}

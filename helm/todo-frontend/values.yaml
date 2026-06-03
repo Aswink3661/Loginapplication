@@ -12,7 +12,7 @@ namespace:
 # ── Image ─────────────────────────────────────────────────────────────────────
 image:
   repository: ghcr.io/aswink3661/todo-app-frontend
-  tag: ""          # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
+  tag: "ec3cb077495a05e8b7d5793b25a429df0a065fdf05a2aca44bcebd510c7d4fba"          # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
   pullPolicy: Always
 
 # ── Replica count ─────────────────────────────────────────────────────────────

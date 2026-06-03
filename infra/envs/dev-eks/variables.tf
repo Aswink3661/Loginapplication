@@ -71,3 +71,9 @@ variable "node_disk_size" {
   description = "Root EBS disk size in GiB for each worker node"
   type        = number
 }
+
+variable "node_ssh_key_name" {
+  description = "EC2 key pair name to allow SSH into worker nodes"
+  type        = string
+  default     = ""
+}

@@ -86,7 +86,7 @@ resource "aws_eks_node_group" "this" {
   cluster_name    = aws_eks_cluster.this.name
   node_group_name = "${var.project_name}-${var.environment}-ng"
   node_role_arn   = aws_iam_role.node_group.arn
-  subnet_ids      = var.private_subnet_ids
+  subnet_ids      = length(var.node_subnet_ids) > 0 ? var.node_subnet_ids : var.private_subnet_ids
   instance_types  = [var.node_instance_type]
   ami_type        = "AL2023_x86_64_STANDARD"
   disk_size       = var.node_disk_size
@@ -95,6 +95,13 @@ resource "aws_eks_node_group" "this" {
     min_size     = var.node_min_size
     max_size     = var.node_max_size
     desired_size = var.node_desired_size
+  }
+
+  dynamic "remote_access" {
+    for_each = var.node_ssh_key_name != "" ? [1] : []
+    content {
+      ec2_ssh_key = var.node_ssh_key_name
+    }
   }
 
   update_config {

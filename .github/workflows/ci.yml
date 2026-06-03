@@ -72,6 +72,51 @@ jobs:
           name: frontend-coverage
           path: todo-app-frontend/coverage/
 
+  # ─── Helm Chart Validation ──────────────────────────────────────────────────
+
+  helm-charts:
+    name: Helm Lint & Template
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.16.0"
+
+      - name: Lint backend chart
+        run: |
+          helm lint ./helm/todo-backend \
+            --values helm/todo-backend/values.yaml \
+            --values helm/todo-backend/values-dev.yaml \
+            --set image.tag=ci
+
+      - name: Lint frontend chart
+        run: |
+          helm lint ./helm/todo-frontend \
+            --values helm/todo-frontend/values.yaml \
+            --values helm/todo-frontend/values-dev.yaml \
+            --set image.tag=ci
+
+      - name: Render backend chart
+        run: |
+          helm template todo-backend ./helm/todo-backend \
+            --namespace loginapp-dev \
+            --values helm/todo-backend/values.yaml \
+            --values helm/todo-backend/values-dev.yaml \
+            --set image.tag=ci
+
+      - name: Render frontend chart
+        run: |
+          helm template todo-frontend ./helm/todo-frontend \
+            --namespace loginapp-dev \
+            --values helm/todo-frontend/values.yaml \
+            --values helm/todo-frontend/values-dev.yaml \
+            --set image.tag=ci
+
   # ─── CodeQL Security Analysis ────────────────────────────────────────────────
 
   codeql:
@@ -153,6 +198,7 @@ jobs:
     needs:
       - backend-tests
       - frontend-tests
+      - helm-charts
       - codeql
     if: always()
     steps:
@@ -161,6 +207,7 @@ jobs:
           results=(
             "backend-tests=${{ needs.backend-tests.result }}"
             "frontend-tests=${{ needs.frontend-tests.result }}"
+            "helm-charts=${{ needs.helm-charts.result }}"
             "codeql (python)=${{ needs.codeql.result }}"
             "codeql (javascript-typescript)=${{ needs.codeql.result }}"
           )

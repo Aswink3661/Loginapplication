@@ -21,6 +21,8 @@ module "eks" {
   environment        = var.environment
   public_subnet_ids  = module.vpc.public_subnet_ids
   private_subnet_ids = module.vpc.private_subnet_ids
+  node_subnet_ids    = module.vpc.public_subnet_ids   # public subnets → nodes get public IPs
+  node_ssh_key_name  = var.node_ssh_key_name
   kubernetes_version = var.kubernetes_version
   node_instance_type = var.node_instance_type
   node_min_size      = var.node_min_size

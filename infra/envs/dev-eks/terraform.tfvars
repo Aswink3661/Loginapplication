@@ -22,3 +22,4 @@ node_min_size      = 1
 node_max_size      = 2
 node_desired_size  = 1
 node_disk_size     = 20
+node_ssh_key_name  = "Pem_key"

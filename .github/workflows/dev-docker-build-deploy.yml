@@ -137,6 +137,20 @@ jobs:
         with:
           version: "3.16.0"
 
+      - name: Lint Helm charts
+        run: |
+          helm lint ./helm/todo-backend \
+            --values helm/todo-backend/values.yaml \
+            --values helm/todo-backend/values-dev.yaml \
+            --set-string image.repository="${{ env.BACKEND_IMAGE }}" \
+            --set-string image.tag="${{ needs.build-backend.outputs.image_tag }}"
+
+          helm lint ./helm/todo-frontend \
+            --values helm/todo-frontend/values.yaml \
+            --values helm/todo-frontend/values-dev.yaml \
+            --set-string image.repository="${{ env.FRONTEND_IMAGE }}" \
+            --set-string image.tag="${{ needs.build-frontend.outputs.image_tag }}"
+
       - name: Update backend image tag in values.yaml
         run: |
           yq e '.image.tag = "${{ needs.build-backend.outputs.image_tag }}"' \
@@ -163,7 +177,8 @@ jobs:
             --create-namespace \
             --values helm/todo-backend/values.yaml \
             --values helm/todo-backend/values-dev.yaml \
-            --set image.tag="${{ needs.build-backend.outputs.image_tag }}" \
+            --set-string image.repository="${{ env.BACKEND_IMAGE }}" \
+            --set-string image.tag="${{ needs.build-backend.outputs.image_tag }}" \
             --atomic \
             --timeout 5m
 
@@ -174,6 +189,17 @@ jobs:
             --create-namespace \
             --values helm/todo-frontend/values.yaml \
             --values helm/todo-frontend/values-dev.yaml \
-            --set image.tag="${{ needs.build-frontend.outputs.image_tag }}" \
+            --set-string image.repository="${{ env.FRONTEND_IMAGE }}" \
+            --set-string image.tag="${{ needs.build-frontend.outputs.image_tag }}" \
             --atomic \
+            --timeout 5m
+
+      - name: Verify Kubernetes rollout
+        run: |
+          kubectl rollout status deployment/todo-app-backend \
+            --namespace loginapp-dev \
+            --timeout 5m
+
+          kubectl rollout status deployment/todo-app-frontend \
+            --namespace loginapp-dev \
             --timeout 5m
