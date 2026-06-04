@@ -8,22 +8,18 @@ namespace:
   labels:
     project: loginapp
     environment: dev
-
 # ── Image ─────────────────────────────────────────────────────────────────────
 image:
   repository: ghcr.io/aswink3661/todo-app-frontend
-  tag: "ec3cb077495a05e8b7d5793b25a429df0a065fdf05a2aca44bcebd510c7d4fba"          # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
+  tag: "sha-cbb69c8" # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
   pullPolicy: Always
-
 # ── Replica count ─────────────────────────────────────────────────────────────
 replicaCount: 2
-
 # ── Service ───────────────────────────────────────────────────────────────────
 service:
   type: ClusterIP
   port: 80
   targetPort: 80
-
 # ── Ingress ───────────────────────────────────────────────────────────────────
 ingress:
   enabled: true
@@ -40,7 +36,6 @@ ingress:
         paths:
           - path: /
             pathType: Prefix
-
 # ── Resources ─────────────────────────────────────────────────────────────────
 resources:
   requests:
@@ -49,7 +44,6 @@ resources:
   limits:
     cpu: "250m"
     memory: "256Mi"
-
 # ── Probes ────────────────────────────────────────────────────────────────────
 livenessProbe:
   httpGet:
@@ -58,7 +52,6 @@ livenessProbe:
   initialDelaySeconds: 10
   periodSeconds: 15
   failureThreshold: 3
-
 readinessProbe:
   httpGet:
     path: /
@@ -66,13 +59,11 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
   failureThreshold: 3
-
 # ── Nginx ConfigMap ───────────────────────────────────────────────────────────
 nginx:
   # Name of the backend service that nginx will proxy /api/ and /health to
   backendServiceName: todo-app-backend
   backendPort: 8000
-
 # ── Labels ────────────────────────────────────────────────────────────────────
 labels:
   project: loginapp
