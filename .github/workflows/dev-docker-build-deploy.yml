@@ -114,6 +114,9 @@ jobs:
     environment: dev
 
     steps:
+      - name: Configure git pull strategy
+        run: git config --global pull.rebase true
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
