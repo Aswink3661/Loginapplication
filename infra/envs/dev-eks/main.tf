@@ -21,7 +21,7 @@ module "eks" {
   environment        = var.environment
   public_subnet_ids  = module.vpc.public_subnet_ids
   private_subnet_ids = module.vpc.private_subnet_ids
-  node_subnet_ids    = module.vpc.public_subnet_ids   # public subnets → nodes get public IPs
+  node_subnet_ids    = module.vpc.public_subnet_ids # public subnets → nodes get public IPs
   node_ssh_key_name  = var.node_ssh_key_name
   kubernetes_version = var.kubernetes_version
   node_instance_type = var.node_instance_type
@@ -30,4 +30,14 @@ module "eks" {
   node_desired_size  = var.node_desired_size
   node_disk_size     = var.node_disk_size
   cluster_admin_arns = var.cluster_admin_arns
+}
+
+import {
+  to = module.eks.aws_eks_access_entry.admin["arn:aws:iam::478398889582:user/Aswin@3661"]
+  id = "loginapp-dev-eks:arn:aws:iam::478398889582:user/Aswin@3661"
+}
+
+import {
+  to = module.eks.aws_eks_access_policy_association.admin["arn:aws:iam::478398889582:user/Aswin@3661"]
+  id = "loginapp-dev-eks#arn:aws:iam::478398889582:user/Aswin@3661#arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 }

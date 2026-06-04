@@ -8,8 +8,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/todo-app-backend
-  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/todo-app-frontend
+  BACKEND_IMAGE: ghcr.io/aswink3661/todo-app-backend
+  FRONTEND_IMAGE: ghcr.io/aswink3661/todo-app-frontend
   EKS_CLUSTER_NAME: loginapp-dev-eks
   AWS_REGION: ap-south-1
 
@@ -153,9 +153,23 @@ jobs:
 
       - name: Update kubeconfig for EKS
         run: |
+          set -euo pipefail
+
           aws eks update-kubeconfig \
-            --region ${{ env.AWS_REGION }} \
-            --name ${{ env.EKS_CLUSTER_NAME }}
+            --region "${AWS_REGION}" \
+            --name "${EKS_CLUSTER_NAME}"
+
+      - name: Verify Kubernetes API access
+        run: |
+          set -euo pipefail
+
+          caller_arn="$(aws sts get-caller-identity --query Arn --output text)"
+          echo "Verifying Kubernetes access for ${caller_arn}"
+
+          if ! kubectl auth can-i '*' '*' --all-namespaces --quiet; then
+            echo "::error title=EKS access denied::IAM principal '${caller_arn}' can describe '${EKS_CLUSTER_NAME}' but is not authorized by the Kubernetes API. Apply infra/envs/dev-eks to enable EKS access entries and grant this principal AmazonEKSClusterAdminPolicy."
+            exit 1
+          fi
 
       - name: Set up Helm
         uses: azure/setup-helm@v4

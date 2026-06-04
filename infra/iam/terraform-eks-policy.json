@@ -85,7 +85,15 @@
         "eks:DeleteAddon",
         "eks:DescribeAddon",
         "eks:ListAddons",
-        "eks:DescribeAddonVersions"
+        "eks:DescribeAddonVersions",
+        "eks:CreateAccessEntry",
+        "eks:DeleteAccessEntry",
+        "eks:DescribeAccessEntry",
+        "eks:ListAccessEntries",
+        "eks:UpdateAccessEntry",
+        "eks:AssociateAccessPolicy",
+        "eks:DisassociateAccessPolicy",
+        "eks:ListAssociatedAccessPolicies"
       ],
       "Resource": "*"
     },
