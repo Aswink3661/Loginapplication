@@ -183,8 +183,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add helm/todo-backend/values.yaml helm/todo-frontend/values.yaml
-          git diff --staged --quiet || \
-            git commit -m "chore(deploy): update image tags to sha-$(echo '${{ github.sha }}' | cut -c1-7) [skip ci]"
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(deploy): update image tags to sha-$(echo '${{ github.sha }}' | cut -c1-7) [skip ci]"
+          git pull --rebase origin develop
           git push
 
       - name: Deploy backend with Helm
