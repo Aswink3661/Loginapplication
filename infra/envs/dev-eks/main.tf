@@ -31,13 +31,3 @@ module "eks" {
   node_disk_size     = var.node_disk_size
   cluster_admin_arns = var.cluster_admin_arns
 }
-
-import {
-  to = module.eks.aws_eks_access_entry.admin["arn:aws:iam::478398889582:user/Aswin@3661"]
-  id = "loginapp-dev-eks:arn:aws:iam::478398889582:user/Aswin@3661"
-}
-
-import {
-  to = module.eks.aws_eks_access_policy_association.admin["arn:aws:iam::478398889582:user/Aswin@3661"]
-  id = "loginapp-dev-eks#arn:aws:iam::478398889582:user/Aswin@3661#arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-}
