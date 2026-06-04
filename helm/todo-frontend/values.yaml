@@ -3,7 +3,7 @@
 
 # ── Namespace ─────────────────────────────────────────────────────────────────
 namespace:
-  create: true
+  create: false # namespace is created by Helm with --create-namespace
   name: loginapp-dev
   labels:
     project: loginapp

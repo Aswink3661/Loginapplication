@@ -1,5 +1,6 @@
 # Environment overrides for dev
 namespace:
+  create: false
   name: loginapp-dev
   labels:
     project: loginapp
