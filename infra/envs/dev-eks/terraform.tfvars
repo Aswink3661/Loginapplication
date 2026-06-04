@@ -23,3 +23,9 @@ node_max_size      = 2
 node_desired_size  = 1
 node_disk_size     = 20
 node_ssh_key_name  = "Pem_key"
+
+# IAM ARNs that need kubectl/helm access to the cluster (e.g. GitHub Actions IAM user).
+# Find yours with: aws sts get-caller-identity --query Arn --output text
+cluster_admin_arns = [
+  "arn:aws:iam::YOUR_ACCOUNT_ID:user/YOUR_GITHUB_ACTIONS_IAM_USER"
+]

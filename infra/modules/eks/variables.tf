@@ -68,3 +68,9 @@ variable "node_ssh_key_name" {
   type        = string
   default     = ""
 }
+
+variable "cluster_admin_arns" {
+  description = "List of IAM user/role ARNs to grant Kubernetes cluster-admin access via EKS access entries (e.g. your CI/CD IAM user)."
+  type        = list(string)
+  default     = []
+}

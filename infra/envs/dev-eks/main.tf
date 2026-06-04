@@ -29,4 +29,5 @@ module "eks" {
   node_max_size      = var.node_max_size
   node_desired_size  = var.node_desired_size
   node_disk_size     = var.node_disk_size
+  cluster_admin_arns = var.cluster_admin_arns
 }
