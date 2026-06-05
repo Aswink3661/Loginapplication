@@ -11,7 +11,7 @@ namespace:
 # ── Image ─────────────────────────────────────────────────────────────────────
 image:
   repository: ghcr.io/aswink3661/todo-app-backend
-  tag: "sha-1d29267" # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
+  tag: "sha-55fd1f6" # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
   pullPolicy: Always
 # ── Replica count ─────────────────────────────────────────────────────────────
 replicaCount: 2
@@ -53,7 +53,6 @@ env:
 podSecurityContext:
   fsGroup: 10001
   fsGroupChangePolicy: OnRootMismatch
-
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
