@@ -12,6 +12,8 @@ env:
   FRONTEND_IMAGE: ghcr.io/aswink3661/todo-app-frontend
   EKS_CLUSTER_NAME: loginapp-dev-eks
   AWS_REGION: ap-south-1
+  EFS_FILE_SYSTEM_NAME: loginapp-dev-eks-docs-efs
+  EFS_ACCESS_POINT_NAME: loginapp-dev-eks-docs-ap
 
 jobs:
   # ─── Build & Push Backend ────────────────────────────────────────────────────
@@ -171,6 +173,35 @@ jobs:
             exit 1
           fi
 
+      - name: Resolve EFS storage IDs
+        id: efs-storage
+        run: |
+          set -euo pipefail
+
+          file_system_id="$(aws efs describe-file-systems \
+            --region "${AWS_REGION}" \
+            --query "FileSystems[?Name=='${EFS_FILE_SYSTEM_NAME}'].FileSystemId | [0]" \
+            --output text)"
+
+          if [[ -z "${file_system_id}" || "${file_system_id}" == "None" ]]; then
+            echo "::error title=EFS file system not found::EFS '${EFS_FILE_SYSTEM_NAME}' was not found in '${AWS_REGION}'. Apply infra/envs/dev-eks before deploying Helm."
+            exit 1
+          fi
+
+          access_point_id="$(aws efs describe-access-points \
+            --region "${AWS_REGION}" \
+            --file-system-id "${file_system_id}" \
+            --query "AccessPoints[?Tags[?Key=='Name' && Value=='${EFS_ACCESS_POINT_NAME}']].AccessPointId | [0]" \
+            --output text)"
+
+          if [[ -z "${access_point_id}" || "${access_point_id}" == "None" ]]; then
+            echo "::error title=EFS access point not found::Access point '${EFS_ACCESS_POINT_NAME}' was not found on '${file_system_id}'. Apply infra/envs/dev-eks before deploying Helm."
+            exit 1
+          fi
+
+          echo "file_system_id=${file_system_id}" >> "${GITHUB_OUTPUT}"
+          echo "access_point_id=${access_point_id}" >> "${GITHUB_OUTPUT}"
+
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
@@ -182,7 +213,9 @@ jobs:
             --values helm/todo-backend/values.yaml \
             --values helm/todo-backend/values-dev.yaml \
             --set-string image.repository="${{ env.BACKEND_IMAGE }}" \
-            --set-string image.tag="${{ needs.build-backend.outputs.image_tag }}"
+            --set-string image.tag="${{ needs.build-backend.outputs.image_tag }}" \
+            --set-string storage.efs.fileSystemId="${{ steps.efs-storage.outputs.file_system_id }}" \
+            --set-string storage.efs.accessPointId="${{ steps.efs-storage.outputs.access_point_id }}"
 
           helm lint ./helm/todo-frontend \
             --values helm/todo-frontend/values.yaml \
@@ -224,6 +257,8 @@ jobs:
             --values helm/todo-backend/values-dev.yaml \
             --set-string image.repository="${{ env.BACKEND_IMAGE }}" \
             --set-string image.tag="${{ needs.build-backend.outputs.image_tag }}" \
+            --set-string storage.efs.fileSystemId="${{ steps.efs-storage.outputs.file_system_id }}" \
+            --set-string storage.efs.accessPointId="${{ steps.efs-storage.outputs.access_point_id }}" \
             --atomic \
             --timeout 5m
 

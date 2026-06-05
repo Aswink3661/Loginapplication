@@ -27,3 +27,8 @@ output "node_role_arn" {
   description = "ARN of the IAM role assigned to worker nodes"
   value       = aws_iam_role.node_group.arn
 }
+
+output "efs_csi_driver_role_arn" {
+  description = "ARN of the IAM role used by the EFS CSI driver"
+  value       = aws_iam_role.efs_csi_driver.arn
+}

@@ -10,6 +10,9 @@ namespace:
 
 replicaCount: 2
 
+storage:
+  enabled: true
+
 env:
   ENVIRONMENT: "development"
   DEBUG: "true"

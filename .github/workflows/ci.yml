@@ -92,7 +92,9 @@ jobs:
           helm lint ./helm/todo-backend \
             --values helm/todo-backend/values.yaml \
             --values helm/todo-backend/values-dev.yaml \
-            --set image.tag=ci
+            --set image.tag=ci \
+            --set-string storage.efs.fileSystemId=fs-00000000000000000 \
+            --set-string storage.efs.accessPointId=fsap-00000000000000000
 
       - name: Lint frontend chart
         run: |
@@ -107,7 +109,9 @@ jobs:
             --namespace loginapp-dev \
             --values helm/todo-backend/values.yaml \
             --values helm/todo-backend/values-dev.yaml \
-            --set image.tag=ci
+            --set image.tag=ci \
+            --set-string storage.efs.fileSystemId=fs-00000000000000000 \
+            --set-string storage.efs.accessPointId=fsap-00000000000000000
 
       - name: Render frontend chart
         run: |

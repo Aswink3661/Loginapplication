@@ -1,0 +1,17 @@
+{{- if and .Values.storage.enabled .Values.storage.persistentVolumeClaim.create }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.storage.persistentVolumeClaim.name }}
+  namespace: {{ include "todo-backend.namespace" . }}
+  labels:
+    {{- include "todo-backend.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.storage.accessModes | nindent 4 }}
+  storageClassName: {{ .Values.storage.storageClass.name }}
+  volumeName: {{ .Values.storage.persistentVolume.name }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+{{- end }}

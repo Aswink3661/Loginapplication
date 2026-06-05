@@ -28,3 +28,18 @@ output "vpc_id" {
   description = "ID of the VPC"
   value       = module.vpc.vpc_id
 }
+
+output "efs_file_system_id" {
+  description = "ID of the EFS file system used for backend /opt/docs storage"
+  value       = aws_efs_file_system.docs.id
+}
+
+output "efs_access_point_id" {
+  description = "ID of the EFS access point rooted at /opt/docs"
+  value       = aws_efs_access_point.docs.id
+}
+
+output "efs_csi_driver_role_arn" {
+  description = "ARN of the IAM role used by the EFS CSI driver"
+  value       = module.eks.efs_csi_driver_role_arn
+}

@@ -125,6 +125,75 @@ resource "aws_eks_node_group" "this" {
 }
 
 # ------------------------------------------------------------------
+# EKS Add-ons – Pod Identity and EFS CSI driver
+# ------------------------------------------------------------------
+resource "aws_iam_role" "efs_csi_driver" {
+  name = "${var.project_name}-${var.environment}-efs-csi-driver-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = [
+        "sts:AssumeRole",
+        "sts:TagSession",
+      ]
+      Effect = "Allow"
+      Principal = {
+        Service = "pods.eks.amazonaws.com"
+      }
+    }]
+  })
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-efs-csi-driver-role"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "efs_csi_driver" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+  role       = aws_iam_role.efs_csi_driver.name
+}
+
+resource "aws_eks_addon" "pod_identity_agent" {
+  cluster_name                = aws_eks_cluster.this.name
+  addon_name                  = "eks-pod-identity-agent"
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [aws_eks_node_group.this]
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-pod-identity-agent"
+  }
+}
+
+resource "aws_eks_addon" "efs_csi_driver" {
+  cluster_name                = aws_eks_cluster.this.name
+  addon_name                  = "aws-efs-csi-driver"
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [aws_eks_node_group.this]
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-efs-csi-driver"
+  }
+}
+
+resource "aws_eks_pod_identity_association" "efs_csi_driver" {
+  cluster_name    = aws_eks_cluster.this.name
+  namespace       = "kube-system"
+  service_account = "efs-csi-controller-sa"
+  role_arn        = aws_iam_role.efs_csi_driver.arn
+
+  depends_on = [
+    aws_eks_addon.pod_identity_agent,
+    aws_eks_addon.efs_csi_driver,
+    aws_iam_role_policy_attachment.efs_csi_driver,
+  ]
+}
+
+# ------------------------------------------------------------------
 # EKS Access Entries – grant cluster-admin to specified IAM principals
 # (e.g. the GitHub Actions CI/CD IAM user)
 # ------------------------------------------------------------------

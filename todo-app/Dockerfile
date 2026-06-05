@@ -10,8 +10,9 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM python:3.12-slim AS runtime
 
-# Non-root user for security
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Non-root user for security. The fixed UID/GID aligns with the EFS access point.
+RUN groupadd --system --gid 10001 appgroup \
+    && useradd --system --uid 10001 --gid appgroup --home-dir /app --shell /usr/sbin/nologin appuser
 
 WORKDIR /app
 
@@ -21,8 +22,9 @@ COPY --from=builder /install /usr/local
 # Copy application source
 COPY --chown=appuser:appgroup . .
 
-# Pre-create logs directory so appuser can write to it at runtime
-RUN mkdir -p /app/logs && chown appuser:appgroup /app/logs
+# Pre-create writable directories for logs and the EFS-backed docs mount.
+RUN mkdir -p /app/logs /opt/docs \
+    && chown -R appuser:appgroup /app/logs /opt/docs
 
 USER appuser
 

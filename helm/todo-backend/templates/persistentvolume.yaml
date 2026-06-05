@@ -1,0 +1,21 @@
+{{- if and .Values.storage.enabled .Values.storage.persistentVolume.create }}
+{{- $fileSystemId := required "storage.efs.fileSystemId is required when storage.enabled=true" .Values.storage.efs.fileSystemId }}
+{{- $accessPointId := required "storage.efs.accessPointId is required when storage.enabled=true" .Values.storage.efs.accessPointId }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.storage.persistentVolume.name }}
+  labels:
+    {{- include "todo-backend.labels" . | nindent 4 }}
+spec:
+  capacity:
+    storage: {{ .Values.storage.size }}
+  volumeMode: Filesystem
+  accessModes:
+    {{- toYaml .Values.storage.accessModes | nindent 4 }}
+  persistentVolumeReclaimPolicy: {{ .Values.storage.persistentVolume.reclaimPolicy }}
+  storageClassName: {{ .Values.storage.storageClass.name }}
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: efs:{{ $fileSystemId }}::{{ $accessPointId }}
+{{- end }}
