@@ -85,7 +85,7 @@ resource "aws_efs_backup_policy" "docs" {
 }
 
 resource "aws_efs_mount_target" "docs" {
-  for_each = toset(module.vpc.private_subnet_ids)
+  for_each = zipmap(var.private_subnet_cidrs, module.vpc.private_subnet_ids)
 
   file_system_id  = aws_efs_file_system.docs.id
   subnet_id       = each.value
