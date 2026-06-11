@@ -13,10 +13,17 @@ replicaCount: 2
 storage:
   enabled: true
 
-env:
-  ENVIRONMENT: "development"
-  DEBUG: "true"
-  LOG_LEVEL: "DEBUG"
+configMap:
+  data:
+    ENVIRONMENT: "development"
+    DEBUG: "true"
+    LOG_LEVEL: "DEBUG"
+    LOG_TO_FILE: "false"
+
+secret:
+  create: true
+  data:
+    SECRET_KEY: "dev-secret-key-replace-me"
 
 labels:
   project: loginapp

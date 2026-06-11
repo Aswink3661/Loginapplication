@@ -20,6 +20,14 @@ service:
   type: ClusterIP
   port: 80
   targetPort: 80
+# ── ConfigMap – non-sensitive runtime config ──────────────────────────────────
+# All keys are injected as environment variables via envFrom.configMapRef.
+configMap:
+  create: true
+  data:
+    APP_NAME: "Todo Frontend"
+    ENVIRONMENT: "development"
+    API_BASE_URL: "/api/v1"
 # ── Ingress ───────────────────────────────────────────────────────────────────
 ingress:
   enabled: true
@@ -67,6 +75,12 @@ nginx:
   # Name of the backend service that nginx will proxy /api/ and /health to
   backendServiceName: todo-app-backend
   backendPort: 8000
+# ── Secret – sensitive runtime config ─────────────────────────────────────────
+# Keep data empty here; provide real values through environment-specific files,
+# CI/CD, or --set-string so secrets are not committed to source control.
+secret:
+  create: true
+  data: {}
 # ── Labels ────────────────────────────────────────────────────────────────────
 labels:
   project: loginapp

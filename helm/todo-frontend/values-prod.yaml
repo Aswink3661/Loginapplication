@@ -10,6 +10,17 @@ image:
 
 replicaCount: 3
 
+configMap:
+  create: true
+  data:
+    APP_NAME: "Todo Frontend"
+    ENVIRONMENT: "production"
+    API_BASE_URL: "/api/v1"
+
+secret:
+  create: true
+  data: {}
+
 resources:
   requests:
     cpu: "200m"

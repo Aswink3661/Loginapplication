@@ -24,9 +24,8 @@ node_desired_size  = 1
 node_disk_size     = 20
 node_ssh_key_name  = "Pem_key"
 
-# IAM ARNs that need kubectl/helm access to the cluster.
-# The original cluster creator is bootstrapped automatically when access entries are enabled.
+# Additional IAM ARNs that need kubectl/helm access to the cluster.
+# Do not add the IAM principal that creates the cluster here; EKS bootstraps
+# that principal automatically when access entries are enabled.
 # Find yours with: aws sts get-caller-identity --query Arn --output text
-cluster_admin_arns = [
-  "arn:aws:iam::478398889582:user/Aswin@3661"
-]
+cluster_admin_arns = []

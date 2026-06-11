@@ -38,17 +38,31 @@ ingress:
         paths:
           - path: /
             pathType: Prefix
-# ── Application environment variables ─────────────────────────────────────────
-env:
-  ENVIRONMENT: "development"
-  DEBUG: "false"
-  LOG_LEVEL: "INFO"
-  LOG_TO_FILE: "false"
-  HOST: "0.0.0.0"
-  PORT: "8000"
-  WORKERS: "1"
-  APP_NAME: "Todo API"
-  APP_VERSION: "1.0.0"
+# ── ConfigMap – non-sensitive application config ──────────────────────────────
+# All keys are injected as environment variables via envFrom.configMapRef.
+configMap:
+  data:
+    APP_NAME: "Todo API"
+    APP_VERSION: "1.0.0"
+    ENVIRONMENT: "development"
+    DEBUG: "false"
+    HOST: "0.0.0.0"
+    PORT: "8000"
+    WORKERS: "1"
+    LOG_LEVEL: "INFO"
+    LOG_TO_FILE: "false"
+    DEFAULT_PAGE_SIZE: "20"
+    MAX_PAGE_SIZE: "100"
+# ── Secret – sensitive application config ─────────────────────────────────────
+# Values are stored as Kubernetes Opaque Secret and injected via envFrom.secretRef.
+# Override per environment; NEVER commit real secrets to source control.
+secret:
+  create: true
+  data:
+    SECRET_KEY: "change-me-before-deploying"
+# ── Extra individual env overrides (takes precedence over envFrom) ─────────────
+# Leave empty unless you need to override a specific key at release time.
+env: {}
 # ── Pod security ───────────────────────────────────────────────────────────────
 podSecurityContext:
   fsGroup: 10001

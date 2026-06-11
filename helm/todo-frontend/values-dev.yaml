@@ -10,6 +10,17 @@ namespace:
 
 replicaCount: 2
 
+configMap:
+  create: true
+  data:
+    APP_NAME: "Todo Frontend"
+    ENVIRONMENT: "development"
+    API_BASE_URL: "/api/v1"
+
+secret:
+  create: true
+  data: {}
+
 labels:
   project: loginapp
   environment: dev

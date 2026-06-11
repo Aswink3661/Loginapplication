@@ -194,8 +194,8 @@ resource "aws_eks_pod_identity_association" "efs_csi_driver" {
 }
 
 # ------------------------------------------------------------------
-# EKS Access Entries – grant cluster-admin to specified IAM principals
-# (e.g. the GitHub Actions CI/CD IAM user)
+# EKS Access Entries – grant cluster-admin to additional IAM principals
+# (e.g. a GitHub Actions CI/CD IAM role, not the bootstrapped cluster creator)
 # ------------------------------------------------------------------
 resource "aws_eks_access_entry" "admin" {
   for_each = toset(var.cluster_admin_arns)

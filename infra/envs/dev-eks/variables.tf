@@ -79,7 +79,7 @@ variable "node_ssh_key_name" {
 }
 
 variable "cluster_admin_arns" {
-  description = "List of IAM user/role ARNs to grant cluster-admin access (e.g. GitHub Actions IAM user)"
+  description = "List of additional IAM user/role ARNs to grant cluster-admin access. Do not include the bootstrapped cluster creator."
   type        = list(string)
   default     = []
 }
