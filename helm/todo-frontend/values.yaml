@@ -8,6 +8,11 @@ namespace:
   labels:
     project: loginapp
     environment: dev
+# ── Naming ───────────────────────────────────────────────────────────────────
+nameOverride: ""
+fullnameOverride: ""
+deployment:
+  name: todo-app-frontend
 # ── Image ─────────────────────────────────────────────────────────────────────
 image:
   repository: ghcr.io/aswink3661/todo-app-frontend
@@ -17,6 +22,7 @@ image:
 replicaCount: 2
 # ── Service ───────────────────────────────────────────────────────────────────
 service:
+  name: todo-app-frontend
   type: ClusterIP
   port: 80
   targetPort: 80
@@ -24,6 +30,7 @@ service:
 # All keys are injected as environment variables via envFrom.configMapRef.
 configMap:
   create: true
+  name: ""
   data:
     APP_NAME: "Todo Frontend"
     ENVIRONMENT: "development"
@@ -31,6 +38,7 @@ configMap:
 # ── Ingress ───────────────────────────────────────────────────────────────────
 ingress:
   enabled: true
+  name: todo-app-frontend
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -72,6 +80,7 @@ readinessProbe:
   successThreshold: 1
 # ── Nginx ConfigMap ───────────────────────────────────────────────────────────
 nginx:
+  configMapName: frontend-nginx-config
   # Name of the backend service that nginx will proxy /api/ and /health to
   backendServiceName: todo-app-backend
   backendPort: 8000
@@ -80,6 +89,7 @@ nginx:
 # CI/CD, or --set-string so secrets are not committed to source control.
 secret:
   create: true
+  name: ""
   data: {}
 # ── Labels ────────────────────────────────────────────────────────────────────
 labels:

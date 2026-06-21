@@ -40,10 +40,11 @@ describe("useTodos", () => {
 
   // ---- initial fetch -------------------------------------------------------
 
-  it("starts in loading state", () => {
+  it("starts in loading state", async () => {
     vi.mocked(todoApi.list).mockResolvedValue(mockPaginated([]));
     const { result } = renderHook(() => useTodos());
     expect(result.current.loading).toBe(true);
+    await waitFor(() => expect(result.current.loading).toBe(false));
   });
 
   it("populates todos after successful fetch", async () => {

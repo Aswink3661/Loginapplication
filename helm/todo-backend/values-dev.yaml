@@ -11,7 +11,7 @@ namespace:
 replicaCount: 2
 
 storage:
-  enabled: true
+  enabled: false
 
 configMap:
   data:

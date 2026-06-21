@@ -3,8 +3,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ include "todo-backend.namespace" . }}
+  {{- with .Values.namespace.labels }}
   labels:
-    {{- with .Values.namespace.labels }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- end }}
 {{- end }}

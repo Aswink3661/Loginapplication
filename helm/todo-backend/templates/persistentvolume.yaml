@@ -17,5 +17,5 @@ spec:
   storageClassName: {{ .Values.storage.storageClass.name }}
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: efs:{{ $fileSystemId }}::{{ $accessPointId }}
+    volumeHandle: {{ printf "efs:%s::%s" $fileSystemId $accessPointId | quote }}
 {{- end }}

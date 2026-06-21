@@ -1,15 +1,13 @@
-{{- if .Values.configMap.create }}
+{{- if and .Values.configMap.create .Values.configMap.data }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "todo-frontend.fullname" . }}-config
+  name: {{ include "todo-frontend.appConfigName" . }}
   namespace: {{ include "todo-frontend.namespace" . }}
   labels:
     {{- include "todo-frontend.labels" . | nindent 4 }}
-{{- with .Values.configMap.data }}
 data:
-  {{- range $key, $val := . }}
+  {{- range $key, $val := .Values.configMap.data }}
   {{ $key }}: {{ $val | quote }}
   {{- end }}
-{{- end }}
 {{- end }}

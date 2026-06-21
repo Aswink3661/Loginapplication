@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TodoForm } from "./TodoForm";
 
@@ -148,11 +148,12 @@ describe("TodoForm — submission", () => {
     await user.type(screen.getByPlaceholderText(/what needs to be done/i), "T");
     const btn = screen.getByRole("button", { name: /add/i });
 
-    user.click(btn); // fire and don't await
+    const clickPromise = user.click(btn);
 
-    // Button should be disabled immediately
-    await vi.waitFor(() => expect(btn).toBeDisabled());
+    await waitFor(() => expect(btn).toBeDisabled());
 
     resolve!();
+    await clickPromise;
+    await waitFor(() => expect(btn).not.toBeDisabled());
   });
 });

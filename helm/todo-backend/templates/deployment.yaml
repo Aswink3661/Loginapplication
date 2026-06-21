@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-app-backend
+  name: {{ include "todo-backend.deploymentName" . }}
   namespace: {{ include "todo-backend.namespace" . }}
   labels:
     {{- include "todo-backend.labels" . | nindent 4 }}
@@ -30,13 +30,19 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+          {{- $hasConfigMap := .Values.configMap.data }}
+          {{- $hasSecret := and .Values.secret.create .Values.secret.data }}
+          {{- if or $hasConfigMap $hasSecret }}
           envFrom:
+            {{- if $hasConfigMap }}
             - configMapRef:
-                name: {{ include "todo-backend.fullname" . }}-config
-            {{- if .Values.secret.create }}
-            - secretRef:
-                name: {{ include "todo-backend.fullname" . }}-secret
+                name: {{ include "todo-backend.configName" . }}
             {{- end }}
+            {{- if $hasSecret }}
+            - secretRef:
+                name: {{ include "todo-backend.secretName" . }}
+            {{- end }}
+          {{- end }}
           {{- with .Values.env }}
           env:
             {{- range $key, $val := . }}

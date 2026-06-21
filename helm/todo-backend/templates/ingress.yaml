@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: todo-app-backend
+  name: {{ include "todo-backend.ingressName" . }}
   namespace: {{ include "todo-backend.namespace" . }}
   labels:
     {{- include "todo-backend.labels" . | nindent 4 }}
@@ -20,7 +20,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: todo-app-backend
+                name: {{ include "todo-backend.serviceName" $ }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}

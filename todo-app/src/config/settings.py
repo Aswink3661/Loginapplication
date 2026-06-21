@@ -1,7 +1,18 @@
 from functools import lru_cache
-from typing import Literal
+from typing import Any, Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _parse_bool(value: Any) -> Any:
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"1", "true", "yes", "on", "debug", "development", "dev"}:
+            return True
+        if normalized in {"0", "false", "no", "off", "release", "production", "prod"}:
+            return False
+    return value
 
 
 class Settings(BaseSettings):
@@ -38,6 +49,11 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",
     )
+
+    @field_validator("DEBUG", "LOG_TO_FILE", mode="before")
+    @classmethod
+    def parse_bool_settings(cls, value: Any) -> Any:
+        return _parse_bool(value)
 
 
 @lru_cache

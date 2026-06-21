@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-app-frontend
+  name: {{ include "todo-frontend.deploymentName" . }}
   namespace: {{ include "todo-frontend.namespace" . }}
   labels:
     {{- include "todo-frontend.labels" . | nindent 4 }}
@@ -22,15 +22,17 @@ spec:
           ports:
             - containerPort: 80
               protocol: TCP
-          {{- if or .Values.configMap.create .Values.secret.create }}
+          {{- $hasConfigMap := and .Values.configMap.create .Values.configMap.data }}
+          {{- $hasSecret := and .Values.secret.create .Values.secret.data }}
+          {{- if or $hasConfigMap $hasSecret }}
           envFrom:
-            {{- if .Values.configMap.create }}
+            {{- if $hasConfigMap }}
             - configMapRef:
-                name: {{ include "todo-frontend.fullname" . }}-config
+                name: {{ include "todo-frontend.appConfigName" . }}
             {{- end }}
-            {{- if .Values.secret.create }}
+            {{- if $hasSecret }}
             - secretRef:
-                name: {{ include "todo-frontend.fullname" . }}-secret
+                name: {{ include "todo-frontend.secretName" . }}
             {{- end }}
           {{- end }}
           volumeMounts:
@@ -46,4 +48,4 @@ spec:
       volumes:
         - name: nginx-config
           configMap:
-            name: frontend-nginx-config
+            name: {{ include "todo-frontend.nginxConfigName" . }}

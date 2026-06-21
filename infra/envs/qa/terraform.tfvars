@@ -24,8 +24,8 @@ health_check_path          = "/"
 enable_deletion_protection = false
 
 # ASG
-asg_min_size             = 1
-asg_max_size             = 4
-asg_desired_capacity     = 2
-scale_out_cpu_threshold  = 70
-scale_in_cpu_threshold   = 30
+asg_min_size            = 1
+asg_max_size            = 4
+asg_desired_capacity    = 2
+scale_out_cpu_threshold = 70
+scale_in_cpu_threshold  = 30
