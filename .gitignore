@@ -16,6 +16,28 @@ override.tf.json
 crash.log
 crash.*.log
 
+# Python local/runtime files
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.venv/
+**/venv/
+
+# Node local/runtime files
+**/node_modules/
+**/dist/
+**/coverage/
+**/.vite/
+
+# Local application configuration
+**/.env
+*.local
+
+# Logs
+**/logs/
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
