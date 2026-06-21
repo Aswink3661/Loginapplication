@@ -1,13 +1,19 @@
-{{- if and .Values.configMap.create .Values.configMap.data }}
+{{- /*
+Application runtime configuration.
+Non-sensitive values are injected into the frontend container through
+envFrom.configMapRef in deployment.yaml.
+*/ -}}
+{{- $configMap := .Values.configMap -}}
+{{- if and $configMap.create $configMap.data }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "todo-frontend.appConfigName" . }}
-  namespace: {{ include "todo-frontend.namespace" . }}
+  name: {{ include "todo-frontend.appConfigName" . | quote }}
+  namespace: {{ include "todo-frontend.namespace" . | quote }}
   labels:
     {{- include "todo-frontend.labels" . | nindent 4 }}
 data:
-  {{- range $key, $val := .Values.configMap.data }}
-  {{ $key }}: {{ $val | quote }}
+  {{- range $key, $value := $configMap.data }}
+  {{ $key }}: {{ $value | toString | quote }}
   {{- end }}
 {{- end }}
