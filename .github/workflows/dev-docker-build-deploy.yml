@@ -224,14 +224,14 @@ jobs:
             --set-string image.tag="${{ needs.build-frontend.outputs.image_tag }}"
 
       - name: Update backend image tag in values.yaml
-        run: |
-          yq e '.image.tag = "${{ needs.build-backend.outputs.image_tag }}"' \
-            -i helm/todo-backend/values.yaml
+        uses: mikefarah/yq@v4.44.3
+        with:
+          cmd: yq e '.image.tag = "${{ needs.build-backend.outputs.image_tag }}"' -i helm/todo-backend/values.yaml
 
       - name: Update frontend image tag in values.yaml
-        run: |
-          yq e '.image.tag = "${{ needs.build-frontend.outputs.image_tag }}"' \
-            -i helm/todo-frontend/values.yaml
+        uses: mikefarah/yq@v4.44.3
+        with:
+          cmd: yq e '.image.tag = "${{ needs.build-frontend.outputs.image_tag }}"' -i helm/todo-frontend/values.yaml
 
       - name: Commit updated image tags
         run: |
