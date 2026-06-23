@@ -16,7 +16,7 @@ deployment:
 # ── Image ─────────────────────────────────────────────────────────────────────
 image:
   repository: ghcr.io/aswink3661/todo-app-frontend
-  tag: "sha-c6983a9" # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
+  tag: "sha-ab62dd0" # Populated automatically by CI/CD (e.g. sha-a1b2c3d)
   pullPolicy: Always
 # ── Replica count ─────────────────────────────────────────────────────────────
 replicaCount: 2
