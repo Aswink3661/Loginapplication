@@ -39,6 +39,17 @@ class Settings(BaseSettings):
     LOG_TO_FILE: bool = True
 
     # -------------------------------------------------------------------
+    # OpenTelemetry / MELT
+    # -------------------------------------------------------------------
+    OTEL_ENABLED: bool = True
+    OTEL_EXPORTER: Literal["none", "console", "otlp"] = "otlp"
+    OTEL_SERVICE_NAMESPACE: str = "loginapplication"
+    OTEL_SERVICE_NAME: str = "todo-api"
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://localhost:4317"
+    OTEL_EXPORTER_OTLP_HEADERS: str = ""
+    OTEL_METRIC_EXPORT_INTERVAL_MS: int = 60_000
+
+    # -------------------------------------------------------------------
     # Pagination
     # -------------------------------------------------------------------
     DEFAULT_PAGE_SIZE: int = 20
@@ -51,7 +62,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    @field_validator("DEBUG", "LOG_TO_FILE", mode="before")
+    @field_validator("DEBUG", "LOG_TO_FILE", "OTEL_ENABLED", mode="before")
     @classmethod
     def parse_bool_settings(cls, value: Any) -> Any:
         return _parse_bool(value)

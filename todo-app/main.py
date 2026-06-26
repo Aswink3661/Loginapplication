@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from src.api.routes import router as todo_router
 from src.config.settings import get_settings
 from src.middleware.request_logging import RequestLoggingMiddleware
+from src.utils.telemetry import configure_telemetry, force_flush_telemetry
 from src.utils.logger import configure_logging, get_logger
 
 settings = get_settings()
@@ -22,18 +23,21 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging()
+    telemetry_state = configure_telemetry(app, settings=settings)
     logger = get_logger(__name__)
     log_level = logging.getLevelName(logging.getLogger().level)
     logger.info(
-        "Starting %s v%s | env=%s | debug=%s | log_level=%s",
+        "Starting %s v%s | env=%s | debug=%s | log_level=%s | telemetry_enabled=%s",
         settings.APP_NAME,
         settings.APP_VERSION,
         settings.ENVIRONMENT,
         settings.DEBUG,
         log_level,
+        telemetry_state.enabled,
     )
     yield
     logger.info("Shutting down %s", settings.APP_NAME)
+    force_flush_telemetry()
 
 
 # ---------------------------------------------------------------------------

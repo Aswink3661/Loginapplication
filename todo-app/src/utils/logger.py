@@ -44,6 +44,13 @@ _STANDARD_LOG_RECORD_FIELDS = {
     "threadName",
 }
 
+_OTEL_LOG_RECORD_FIELDS = {
+    "otelServiceName",
+    "otelSpanID",
+    "otelTraceID",
+    "otelTraceSampled",
+}
+
 
 class JsonLogFormatter(logging.Formatter):
     """Format log records as cloud-friendly structured JSON."""
@@ -61,10 +68,22 @@ class JsonLogFormatter(logging.Formatter):
             },
         }
 
+        trace_id = getattr(record, "otelTraceID", None)
+        span_id = getattr(record, "otelSpanID", None)
+        service_name = getattr(record, "otelServiceName", None)
+        if trace_id:
+            payload["trace_id"] = trace_id
+        if span_id:
+            payload["span_id"] = span_id
+        if service_name:
+            payload["service_name"] = service_name
+
         extras = {
             key: value
             for key, value in record.__dict__.items()
-            if key not in _STANDARD_LOG_RECORD_FIELDS and not key.startswith("_")
+            if key not in _STANDARD_LOG_RECORD_FIELDS
+            and key not in _OTEL_LOG_RECORD_FIELDS
+            and not key.startswith("_")
         }
         payload.update(extras)
 
