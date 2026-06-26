@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     # Logging
     # -------------------------------------------------------------------
     LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: Literal["json", "text"] = "json"
     LOG_TO_FILE: bool = True
 
     # -------------------------------------------------------------------

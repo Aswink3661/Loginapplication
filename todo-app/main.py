@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -8,6 +9,7 @@ from fastapi.responses import JSONResponse
 
 from src.api.routes import router as todo_router
 from src.config.settings import get_settings
+from src.middleware.request_logging import RequestLoggingMiddleware
 from src.utils.logger import configure_logging, get_logger
 
 settings = get_settings()
@@ -21,12 +23,14 @@ settings = get_settings()
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging()
     logger = get_logger(__name__)
+    log_level = logging.getLevelName(logging.getLogger().level)
     logger.info(
-        "Starting %s v%s | env=%s | debug=%s",
+        "Starting %s v%s | env=%s | debug=%s | log_level=%s",
         settings.APP_NAME,
         settings.APP_VERSION,
         settings.ENVIRONMENT,
         settings.DEBUG,
+        log_level,
     )
     yield
     logger.info("Shutting down %s", settings.APP_NAME)
@@ -54,6 +58,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(RequestLoggingMiddleware)
 
     # ---- Global exception handler ----
     @app.exception_handler(Exception)
